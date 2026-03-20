@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<link rel="stylesheet" href="/style.css">
+
+<style>
+
+body{
+font-family: Arial;
+margin:0;
+background:#0f172a;
+color:white;
+}
+
+.topo{
+background: linear-gradient(90deg,#020617,#1d4ed8);
+padding:15px;
+}
+
+.menu{
+background:#020617;
+padding:12px;
+}
+
+.menu a{
+color:#38bdf8;
+margin-right:20px;
+text-decoration:none;
+font-weight:bold;
+}
+
+.menu a:hover{
+color:#facc15;
+}
+
+.numero{
+font-size:28px;
+font-weight:bold;
+color:white;
+}
+
+.container{
+padding:20px;
+}
+
+.cards-linha{
+display:grid;
+grid-template-columns: repeat(4,1fr);
+gap:15px;
+margin-bottom:20px;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="topo">
+<h2>Gestor Master</h2>
+</div>
+
+<div class="perfil-topo">
+<span>👤 admin</span>
+<span id="creditosTopo">💰 ...</span>
+</div>
+
+<div class="menu">
+
+<a href="dashboard.html">Dashboard</a>
+<a href="screen.html">Clientes</a>
+<a href="revendedores.html">Revendedores</a>
+<a href="creditos.html">Créditos</a>
+
+</div>
+
+<div class="container">
+
+<div class="cards-linha">
+
+<div class="card">
+<h3>Créditos</h3>
+<div id="creditos">0</div>
+</div>
+
+<div class="card">
+<h3>Clientes</h3>
+<div id="totalClientes">0</div>
+</div>
+
+<div class="card">
+<h3>Vencendo Hoje</h3>
+<div id="vencendoHoje">0</div>
+</div>
+
+<div class="card">
+<h3>Revendedores</h3>
+<div id="totalRevendedores">0</div>
+</div>
+
+</div>
+
+<div class="card">
+<div>Total Clientes</div>
+<div id="totalClientes2" class="numero">0</div>
+</div>
+
+<div class="card">
+<div>Clientes Ativos</div>
+<div id="clientesAtivos" class="numero">0</div>
+</div>
+
+<div class="card">
+<div>Clientes Vencidos</div>
+<div id="clientesVencidos" class="numero">0</div>
+</div>
+
+<div class="card">
+<div>Revendedores</div>
+<div id="totalRevendedores2" class="numero">0</div>
+</div>
+
+</div>
+
+<script>
+
+const usuario = localStorage.getItem("usuario");
+
+if(!usuario){
+alert("Faça login novamente");
+window.location = "login.html";
+}
+
+async function carregarDashboard(){
+
+/* CLIENTES */
+const resClientes = await fetch("/clientes/" + usuario);
+const clientes = await resClientes.json();
+
+let totalClientes = clientes.length;
+let ativos = 0;
+let vencidos = 0;
+let vencendoHoje = 0;
+
+const hoje = new Date();
+
+clientes.forEach(c => {
+
+const venc = new Date(c.vencimento);
+
+if(venc > hoje){
+ativos++;
+}else{
+vencidos++;
+}
+
+if(
+venc.getDate() === hoje.getDate() &&
+venc.getMonth() === hoje.getMonth() &&
+venc.getFullYear() === hoje.getFullYear()
+){
+vencendoHoje++;
+}
+
+});
+
+/* REVENDEDORES */
+const resRev = await fetch("/usuarios/" + usuario);
+const revendedores = await resRev.json();
+
+/* CREDITOS */
+const resCred = await fetch("/creditos/" + usuario);
+const cred = await resCred.json();
+
+/* ATUALIZA TUDO */
+
+document.getElementById("creditos").innerText = cred.creditos;
+
+document.getElementById("totalClientes").innerText = totalClientes;
+document.getElementById("totalClientes2").innerText = totalClientes;
+
+document.getElementById("clientesAtivos").innerText = ativos;
+document.getElementById("clientesVencidos").innerText = vencidos;
+
+document.getElementById("vencendoHoje").innerText = vencendoHoje;
+
+document.getElementById("totalRevendedores").innerText = revendedores.length;
+document.getElementById("totalRevendedores2").innerText = revendedores.length;
+
+}
+
+carregarDashboard();
+
+</script>
+
+</body>
+</html>

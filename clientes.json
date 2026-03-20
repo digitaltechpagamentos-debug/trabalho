@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1773955307632,
+    "email": "dedd",
+    "senha": "",
+    "servidor": "",
+    "dono": "leo",
+    "vencimento": "2026-04-18T21:21:47.632Z"
+  },
+  {
+    "id": 1773949619776,
+    "email": "FIGUEIREDO",
+    "senha": "123456",
+    "servidor": "",
+    "dono": "leo",
+    "vencimento": "2026-04-18T19:46:59.776Z"
+  },
+  {
+    "id": 1773877677940,
+    "senha": "123455",
+    "servidor": "uni",
+    "dono": "admin",
+    "vencimento": "2026-04-17T23:47:57.940Z",
+    "email": "fernanda"
+  },
+  {
+    "id": 1773877026026,
+    "email": "FIGUEIREDO",
+    "senha": "123456",
+    "servidor": "server1",
+    "dono": "admin",
+    "vencimento": "2026-04-17T23:37:06.026Z"
+  }
+]

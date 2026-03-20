@@ -1,0 +1,132 @@
+[
+  {
+    "usuario": "leo",
+    "senha": "-10",
+    "tipo": "revendedor",
+    "creditos": 9,
+    "pai": "leo",
+    "bloqueado": false
+  },
+  {
+    "usuario": "admin",
+    "senha": "123",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "leo",
+    "bloqueado": false
+  },
+  {
+    "usuario": "leo",
+    "senha": "123456",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "admin",
+    "bloqueado": false
+  },
+  {
+    "usuario": "fv",
+    "senha": "fvfef",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "admin",
+    "bloqueado": false
+  },
+  {
+    "usuario": "kjiyuuityvu ty",
+    "senha": "jhhjb",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "admin",
+    "bloqueado": false
+  },
+  {
+    "usuario": "kjiyuuityvu ty",
+    "senha": "",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "admin",
+    "bloqueado": false
+  },
+  {
+    "usuario": "admin",
+    "senha": "vghvgvh",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "admin",
+    "bloqueado": false
+  },
+  {
+    "usuario": "fernandagab",
+    "senha": "joice",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "admin",
+    "bloqueado": false
+  },
+  {
+    "id": 2,
+    "usuario": "jorge",
+    "senha": "1234",
+    "tipo": "subrevendedor",
+    "pai": "admin",
+    "creditos": 32
+  },
+  {
+    "id": 3,
+    "usuario": "ferr",
+    "senha": "123455",
+    "tipo": "subrevendedor",
+    "pai": "admin",
+    "creditos": 21
+  },
+  {
+    "usuario": "admin",
+    "senha": "23456",
+    "tipo": "revendedor",
+    "creditos": 5,
+    "bloqueado": false
+  },
+  {
+    "usuario": "fer",
+    "senha": "barbosa",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "bloqueado": false
+  },
+  {
+    "usuario": "admin",
+    "senha": "bnmvbnn",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "bloqueado": false
+  },
+  {
+    "usuario": "fernanda",
+    "senha": "335218",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "bloqueado": false
+  },
+  {
+    "usuario": "fernanda",
+    "senha": "335218",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "bloqueado": false
+  },
+  {
+    "usuario": "admin",
+    "senha": "1234556",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "bloqueado": false
+  },
+  {
+    "usuario": "gabriel",
+    "senha": "gavv",
+    "tipo": "revendedor",
+    "creditos": 0,
+    "pai": "admin",
+    "bloqueado": false
+  }
+]

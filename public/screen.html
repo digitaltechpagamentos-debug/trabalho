@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<title>Gestor Master</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+/* MODAL */
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+.modal-content{
+background:#1e293b;
+padding:25px;
+border-radius:10px;
+width:300px;
+box-shadow:0 0 20px rgba(0,0,0,0.6);
+}
+
+.modal input{
+width:100%;
+margin-bottom:10px;
+padding:10px;
+border-radius:6px;
+border:1px solid #334155;
+background:#0f172a;
+color:white;
+}
+
+.modal button{
+margin-top:5px;
+width:100%;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="topo">
+<h2>Gestor Master</h2>
+</div>
+
+<div class="perfil-topo">
+<span>👤 admin</span>
+<span id="creditosTopo">💰 ...</span>
+</div>
+
+<div class="menu">
+<a href="dashboard.html">Dashboard</a>
+<a href="screen.html">Clientes</a>
+<a href="revendedores.html">Revendedores</a>
+<a href="creditos.html">Créditos</a>
+</div>
+
+<div class="card">
+<h3>Créditos disponíveis</h3>
+<div id="creditos">Carregando...</div>
+</div>
+
+<div class="card">
+
+<h3>Cadastrar Cliente</h3>
+
+<input id="nome" placeholder="Nome do cliente">
+<input id="usuario" placeholder="Usuário">
+<input id="senha" placeholder="Senha">
+<input id="servidor" placeholder="Servidor">
+
+<button onclick="criar()">Salvar</button>
+
+</div>
+
+<div class="card">
+
+<h3>Clientes</h3>
+
+<input id="buscar" placeholder="Buscar cliente..." onkeyup="buscarCliente()">
+
+<table>
+
+<thead>
+<tr>
+<th>Cliente</th>
+<th>Senha</th>
+<th>Servidor</th>
+<th>Vencimento</th>
+<th>Status</th>
+<th>Ações</th>
+</tr>
+</thead>
+
+<tbody id="lista"></tbody>
+
+</table>
+
+</div>
+
+<div class="card">
+<h3>Alertas de vencimento</h3>
+<div id="alertas"></div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal" id="modalEditar">
+<div class="modal-content">
+
+<h3>Editar Cliente</h3>
+
+<input id="editNome">
+<input id="editSenha">
+<input id="editServidor">
+
+<button onclick="salvarEdicao()">Salvar</button>
+<button onclick="fecharModal()">Cancelar</button>
+
+</div>
+</div>
+
+<script>
+
+let clienteAtual = null;
+const usuario = localStorage.getItem("usuario");
+
+/* ALERTAS */
+async function verificarVencimentos(){
+
+const res = await fetch("/clientes/" + usuario);
+const clientes = await res.json();
+
+let avisos = "";
+const hoje = new Date();
+
+clientes.forEach(c => {
+
+const venc = new Date(c.vencimento);
+const diff = Math.floor((venc - hoje) / (1000*60*60*24));
+
+if(diff < 0){
+avisos += `<div style="color:red">⚠️ ${c.email} está vencido</div>`;
+}
+else if(diff <= 3){
+avisos += `<div style="color:orange">⏰ ${c.email} vence em ${diff} dias</div>`;
+}
+
+});
+
+document.getElementById("alertas").innerHTML = avisos;
+
+}
+
+/* LISTAR CLIENTES */
+async function carregar(){
+
+const res = await fetch("/clientes/" + usuario);
+const dados = await res.json();
+
+let html = "";
+
+dados.forEach(c => {
+
+html += `
+<tr>
+<td>${c.email}</td>
+<td>${c.senha}</td>
+<td>${c.servidor}</td>
+<td>${new Date(c.vencimento).toLocaleDateString()}</td>
+
+<td>
+${new Date(c.vencimento) < new Date()
+? "<span style='color:red'>Vencido</span>"
+: "<span style='color:green'>Ativo</span>"}
+</td>
+
+<td>
+<button onclick="abrirModal(${c.id}, '${c.email}', '${c.senha}', '${c.servidor}')">Editar</button>
+
+<button onclick="renovar(${c.id})">Renovar</button>
+
+<button onclick="excluir(${c.id})">Excluir</button>
+
+<button onclick="copiar('${c.email} - ${c.senha}')">Copiar</button>
+</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById("lista").innerHTML = html;
+
+}
+
+/* CRIAR */
+async function criar(){
+
+const nome = document.getElementById("nome").value;
+const senha = document.getElementById("senha").value;
+const servidor = document.getElementById("servidor").value;
+
+await fetch("/criar-cliente", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+email: nome,
+senha: senha,
+servidor: servidor,
+dono: usuario
+})
+});
+
+alert("Cliente criado");
+carregar();
+
+}
+
+/* EXCLUIR */
+async function excluir(id){
+
+if(!confirm("Deseja excluir este cliente?")) return;
+
+await fetch("/excluir/" + id, {
+method: "DELETE"
+});
+
+carregar();
+
+}
+
+/* RENOVAR */
+async function renovar(id){
+
+const meses = prompt("Quantos meses?");
+if(!meses) return;
+
+await fetch("/renovar/" + id, {
+method: "PUT",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ meses })
+});
+
+alert("Renovado");
+carregar();
+
+}
+
+/* BUSCAR */
+function buscarCliente(){
+
+const termo = document.getElementById("buscar").value.toLowerCase();
+const linhas = document.querySelectorAll("#lista tr");
+
+linhas.forEach(linha => {
+const nome = linha.children[0].innerText.toLowerCase();
+linha.style.display = nome.includes(termo) ? "" : "none";
+});
+
+}
+
+/* COPIAR */
+function copiar(texto){
+navigator.clipboard.writeText(texto);
+alert("Copiado!");
+}
+
+/* MODAL */
+function abrirModal(id, nome, senha, servidor){
+
+clienteAtual = id;
+
+document.getElementById("editNome").value = nome;
+document.getElementById("editSenha").value = senha;
+document.getElementById("editServidor").value = servidor;
+
+document.getElementById("modalEditar").style.display = "flex";
+
+}
+
+function fecharModal(){
+document.getElementById("modalEditar").style.display = "none";
+}
+
+/* SALVAR */
+async function salvarEdicao(){
+
+const nome = document.getElementById("editNome").value;
+const senha = document.getElementById("editSenha").value;
+const servidor = document.getElementById("editServidor").value;
+
+await fetch("/editar-cliente/" + clienteAtual, {
+method:"PUT",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:nome,
+senha:senha,
+servidor:servidor
+})
+});
+
+alert("Atualizado");
+fecharModal();
+carregar();
+
+}
+
+/* CREDITOS */
+async function carregarCreditos(){
+
+const res = await fetch("/creditos/" + usuario);
+const data = await res.json();
+
+document.getElementById("creditos").innerText = data.creditos;
+
+}
+
+/* INICIAR */
+carregar();
+verificarVencimentos();
+carregarCreditos();
+
+</script>
+
+</body>
+
+</html>

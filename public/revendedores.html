@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<title>Revendedores</title>
+<link rel="stylesheet" href="/style.css">
+
+<style>
+
+body{
+font-family: Arial;
+margin:0;
+background:#0f172a;
+color:white;
+}
+
+.topo{
+background: linear-gradient(90deg,#020617,#1d4ed8);
+padding:15px;
+}
+
+.menu{
+background:#020617;
+padding:10px;
+}
+
+.menu a{
+color:#38bdf8;
+margin-right:20px;
+text-decoration:none;
+font-weight:bold;
+}
+
+.menu a:hover{
+color:#facc15;
+}
+
+.container{
+padding:20px;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+
+input{
+padding:10px;
+margin:5px;
+background:#334155;
+color:white;
+border:1px solid #475569;
+border-radius:6px;
+}
+
+table{
+background:#1e293b;
+color:white;
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#020617;
+padding:10px;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid #334155;
+}
+
+/* BOTÕES */
+
+button{
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+margin:2px;
+}
+
+button:hover{
+opacity:0.85;
+}
+
+.btn-credito{
+background:#22c55e;
+color:white;
+}
+
+.btn-editar{
+background:#3b82f6;
+color:white;
+}
+
+.btn-bloquear{
+background:#f59e0b;
+color:white;
+}
+
+.btn-excluir{
+background:#ef4444;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="topo">
+<h2>Gestor Master</h2>
+</div>
+
+<div class="perfil-topo">
+<span>👤 admin</span>
+<span id="creditosTopo">💰 ...</span>
+</div>
+
+<div class="menu">
+<a href="dashboard.html">Dashboard</a>
+<a href="screen.html">Clientes</a>
+<a href="revendedores.html">Revendedores</a>
+<a href="creditos.html">Créditos</a>
+</div>
+
+<div class="container">
+
+<div class="card">
+<h3>Criar Revendedor</h3>
+
+<input id="usuario" placeholder="Usuário">
+<input id="senha" placeholder="Senha">
+
+<button onclick="criarRevendedor()">Criar</button>
+</div>
+
+<div class="card">
+<h3>Revendedores</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Usuário</th>
+<th>Senha</th>
+<th>Créditos</th>
+<th>Status</th>
+<th>Ações</th>
+</tr>
+</thead>
+
+<tbody id="listaRevendedores"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const usuarioLogado = localStorage.getItem("usuario");
+
+if(!usuarioLogado){
+alert("Faça login novamente");
+window.location = "login.html";
+}
+
+async function carregarRevendedores(){
+
+const res = await fetch("/usuarios/" + usuarioLogado);
+const dados = await res.json();
+
+let html = "";
+
+dados.forEach(u=>{
+
+html += `
+<tr>
+
+<td>${u.usuario}</td>
+<td>${u.senha}</td>
+<td>${u.creditos}</td>
+<td>${u.bloqueado ? "Bloqueado" : "Ativo"}</td>
+
+<td>
+
+<button class="btn-credito" onclick="adicionarCreditos('${u.usuario}')">Créditos</button>
+
+<button class="btn-editar" onclick="editar('${u.usuario}')">Editar</button>
+
+<button class="btn-bloquear" onclick="bloquear('${u.usuario}')">Bloquear</button>
+
+<button class="btn-excluir" onclick="excluir('${u.usuario}')">Excluir</button>
+
+</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById("listaRevendedores").innerHTML = html;
+
+}
+
+async function criarRevendedor(){
+
+const usuario = document.getElementById("usuario").value;
+const senha = document.getElementById("senha").value;
+
+await fetch("/criar-subrevendedor",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+usuario,
+senha,
+pai:usuarioLogado
+})
+});
+
+alert("Revendedor criado");
+
+carregarRevendedores();
+
+}
+
+async function adicionarCreditos(usuario){
+
+const valor = prompt("Quantos créditos adicionar?");
+if(!valor) return;
+
+await fetch("/adicionar-creditos",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+usuario,
+creditos:valor
+})
+});
+
+alert("Créditos adicionados");
+
+carregarRevendedores();
+
+}
+
+async function editar(usuario){
+
+const novaSenha = prompt("Nova senha:");
+if(!novaSenha) return;
+
+await fetch("/editar-usuario",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+usuario,
+senha:novaSenha
+})
+});
+
+alert("Atualizado");
+
+carregarRevendedores();
+
+}
+
+async function bloquear(usuario){
+
+await fetch("/bloquear",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({usuario})
+});
+
+carregarRevendedores();
+
+}
+
+async function excluir(usuario){
+
+if(!confirm("Deseja excluir?")) return;
+
+await fetch("/excluir-usuario",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({usuario})
+});
+
+carregarRevendedores();
+
+}
+
+carregarRevendedores();
+
+</script>
+
+</body>
+</html>
