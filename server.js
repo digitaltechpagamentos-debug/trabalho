@@ -1,5 +1,6 @@
 const express = require("express");
 const fs = require("fs");
+const path = require("path"); // 🔥 ADICIONADO
 
 const app = express();
 
@@ -18,6 +19,11 @@ clientes = JSON.parse(fs.readFileSync("clientes.json"));
 if (fs.existsSync("usuarios.json")) {
 usuarios = JSON.parse(fs.readFileSync("usuarios.json"));
 }
+
+/* 🔥 ROTA PRINCIPAL (NÃO EXISTIA) */
+app.get("/", (req, res) => {
+res.sendFile(path.join(__dirname, "public", "login.html"));
+});
 
 /* ================= LOGIN ================= */
 
@@ -290,34 +296,29 @@ res.json({ mensagem:"Créditos adicionados com sucesso" });
 
 });
 
-/* 🔥 CORREÇÃO FORÇADA */
+/* 🔥 CORREÇÃO FINAL */
 app.get("/creditos/:usuario", (req, res) => {
 
 let usuario = req.params.usuario;
 
-/* 🔥 ATUALIZA SEMPRE */
 if (fs.existsSync("usuarios.json")) {
 usuarios = JSON.parse(fs.readFileSync("usuarios.json"));
 }
 
-/* 🔥 SE NÃO FOR ADMIN, FORÇA BUSCA REAL */
-if(usuario !== "admin"){
+if(usuario === "admin"){
+return res.json({ creditos: 999999 });
+}
+
 const user = usuarios.find(u => u.usuario === usuario);
 
-if(user){
-return res.json({ creditos: user.creditos });
-}
-
-return res.json({ creditos: 0 });
-}
-
-/* 🔥 ADMIN */
-return res.json({ creditos: 999999 });
+return res.json({ creditos: user ? user.creditos : 0 });
 
 });
 
 /* ================= SERVIDOR ================= */
 
-app.listen(3000, () => {
-console.log("Servidor rodando na porta 3000 🚀");
+const PORT = process.env.PORT || 3000; // 🔥 CORREÇÃO RAILWAY
+
+app.listen(PORT, () => {
+console.log("Servidor rodando na porta " + PORT);
 });
