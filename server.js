@@ -317,8 +317,8 @@ return res.json({ creditos: user ? user.creditos : 0 });
 
 /* ================= SERVIDOR ================= */
 
-const PORT = process.env.PORT; // 🔥 CORREÇÃO RAILWAY
+const PORT = process.env.PORT || 8080; // 🔥 CORREÇÃO RAILWAY
 
-app.listen(PORT, () => {
-console.log("NOVA VERSÃO RODANDO NA PORTA" + PORT);
+app.listen(PORT, "0.0.0.0",  () => {
+console.log("servidor rodando na porta" + PORT);
 });
