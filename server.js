@@ -27,7 +27,7 @@ usuarios = JSON.parse(fs.readFileSync(path.join(__dirname, "usuarios.json")));
 
 // 🔥 GARANTE QUE O RENDER ABRA O LOGIN
 app.get("/", (req, res) => {
-res.sendFile(path.join(__dirname, "public", "login.html"));
+res.sendFile((__dirname + "/public/login.html"));
 });
 
 /* ================= LOGIN ================= */
