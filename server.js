@@ -314,6 +314,9 @@ const user = usuarios.find(u => u.usuario === usuario);
 return res.json({ creditos: user ? user.creditos : 0 });
 
 });
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/public/login.html");
+});
 
 /* ================= SERVIDOR ================= */
 
