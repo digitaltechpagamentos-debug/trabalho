@@ -7,27 +7,36 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🔥 MUITO IMPORTANTE (Render)
+// 🔥 SERVIR ARQUIVOS
 app.use(express.static(path.join(__dirname, "public")));
 
 let clientes = [];
 let usuarios = [];
 
-/* ================= CARREGAR ================= */
+/* ================= CARREGAR (PROTEGIDO) ================= */
 
+try {
 if (fs.existsSync(path.join(__dirname, "clientes.json"))) {
 clientes = JSON.parse(fs.readFileSync(path.join(__dirname, "clientes.json")));
 }
+} catch (erro) {
+console.log("Erro clientes.json:", erro);
+clientes = [];
+}
 
+try {
 if (fs.existsSync(path.join(__dirname, "usuarios.json"))) {
 usuarios = JSON.parse(fs.readFileSync(path.join(__dirname, "usuarios.json")));
+}
+} catch (erro) {
+console.log("Erro usuarios.json:", erro);
+usuarios = [];
 }
 
 /* ================= ROTA PRINCIPAL ================= */
 
-// 🔥 GARANTE QUE O RENDER ABRA O LOGIN
 app.get("/", (req, res) => {
-res.sendFile((__dirname + "/public/login.html"));
+res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
 /* ================= LOGIN ================= */
@@ -125,7 +134,6 @@ res.json({ mensagem: "Cliente criado com sucesso" });
 
 const PORT = process.env.PORT || 3000;
 
-// 🔥 IMPORTANTE PRO RENDER
 app.listen(PORT, "0.0.0.0", () => {
 console.log("Servidor rodando na porta " + PORT);
 });
