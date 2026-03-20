@@ -35,9 +35,8 @@ usuarios = [];
 
 /* ================= ROTA PRINCIPAL ================= */
 app.get("/", (req, res) => {
-res.send("FUNCIONOU");
+res.sendFile(path.join(__dirname, "public", "login.html"));
 });
-
 /* ================= LOGIN ================= */
 
 app.post("/login", (req, res) => {
