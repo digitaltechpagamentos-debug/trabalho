@@ -320,5 +320,5 @@ return res.json({ creditos: user ? user.creditos : 0 });
 const PORT = process.env.PORT; // 🔥 CORREÇÃO RAILWAY
 
 app.listen(PORT, () => {
-console.log("Servidor rodando na porta " + PORT);
+console.log("NOVA VERSÃO RODANDO NA PORTA" + PORT);
 });
