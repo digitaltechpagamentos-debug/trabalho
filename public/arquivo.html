@@ -165,8 +165,10 @@ carregar();
 
 async function excluir(id){
 
-await fetch("/excluir/"+id,{
-method:"DELETE"
+await fetch("/excluir-cliente",{
+method:"POST",
+headers: {"contente-Type":"aplication/json"},
+body: JSON.stringify({ id})
 });
 
 carregar();
