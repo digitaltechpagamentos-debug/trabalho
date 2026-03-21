@@ -157,7 +157,7 @@ color:white;
 <th>Usuário</th>
 <th>Senha</th>
 <th>Créditos</th>
-<th>Clientes</th> <!-- 🔥 NOVO -->
+<th>Clientes</th>
 <th>Status</th>
 <th>Ações</th>
 </tr>
@@ -182,7 +182,9 @@ window.location = "login.html";
 
 async function carregarRevendedores(){
 
-const res = await fetch("/usuarios/" + usuarioLogado);
+// 🔥 CORREÇÃO AQUI
+const res = await fetch("/revendedores");
+
 const dados = await res.json();
 
 let html = "";
@@ -195,7 +197,7 @@ html += `
 <td>${u.usuario}</td>
 <td>${u.senha}</td>
 <td>${u.creditos}</td>
-<td>${u.totalClientes || 0}</td> <!-- 🔥 NOVO -->
+<td>${u.totalClientes || 0}</td>
 <td>${u.bloqueado ? "Bloqueado" : "Ativo"}</td>
 
 <td>
@@ -208,7 +210,7 @@ html += `
 
 <button class="btn-excluir" onclick="excluir('${u.usuario}')">Excluir</button>
 
-<button class="btn-copiar" onclick="copiar('${u.usuario} - ${u.senha}')">Copiar</button> <!-- 🔥 NOVO -->
+<button class="btn-copiar" onclick="copiar('${u.usuario} - ${u.senha}')">Copiar</button>
 
 </td>
 
@@ -226,7 +228,8 @@ async function criarRevendedor(){
 const usuario = document.getElementById("usuario").value;
 const senha = document.getElementById("senha").value;
 
-await fetch("/criar-subrevendedor",{
+// 🔥 CORREÇÃO AQUI
+await fetch("/criar-revendedor",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
