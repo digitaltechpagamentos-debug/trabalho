@@ -133,6 +133,7 @@ res.json({ mensagem: "Cliente criado com sucesso" });
 
 /* ================= REVENDEDORES ================= */
 
+
 // 🔥 CRIAR REVENDEDOR
 app.post("/criar-revendedor", (req, res) => {
 const { usuario, senha } = req.body;
@@ -156,6 +157,20 @@ JSON.stringify(usuarios, null, 2)
 );
 
 res.json({ mensagem: "Revendedor criado com sucesso" });
+});
+app.post("/excluir-usuario", (req, res) => {
+const { usuario } = req.body;
+
+// remove o usuário
+usuarios = usuarios.filter(u => u.usuario !== usuario);
+
+// salva no arquivo
+fs.writeFileSync(
+path.join(__dirname, "usuarios.json"),
+JSON.stringify(usuarios, null, 2)
+);
+
+res.json({ mensagem: "Usuário excluído" });
 });
 
 // 🔥 LISTAR REVENDEDORES
