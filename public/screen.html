@@ -233,8 +233,10 @@ async function excluir(id){
 
 if(!confirm("Deseja excluir este cliente?")) return;
 
-await fetch("/excluir/" + id, {
-method: "DELETE"
+await fetch("/excluir-cliente", {
+method: "POST",
+headers: {"contente-Type": "application/json"},
+body: JSON.stringify({ id})
 });
 
 carregar();
