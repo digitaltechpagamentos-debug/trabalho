@@ -99,7 +99,18 @@ res.json(clientes.filter(c => c.dono === usuario));
 });
 
 /* ================= CRIAR CLIENTE ================= */
+app.post("/excluir-cliente", (req, res) => {
+const { id } = req.body;
 
+clientes = clientes.filter(c => c.id != id);
+
+fs.writeFileSync(
+path.join(__dirname, "clientes.json"),
+JSON.stringify(clientes, null, 2)
+);
+
+res.json({ mensagem: "Cliente excluído com sucesso" });
+});
 app.post("/criar-cliente", (req, res) => {
 const { email, senha, servidor, dono } = req.body;
 
