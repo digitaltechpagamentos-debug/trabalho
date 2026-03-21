@@ -37,6 +37,7 @@ usuarios = [];
 app.get("/", (req, res) => {
 res.sendFile(path.join(__dirname, "public", "login.html"));
 });
+
 /* ================= LOGIN ================= */
 
 app.post("/login", (req, res) => {
@@ -73,10 +74,12 @@ const data = new Date(c.vencimento);
 return data.toDateString() === hoje.toDateString();
 }).length;
 
+const totalRevendedores = usuarios.filter(u => u.tipo === "revendedor").length;
+
 res.json({
 creditos: 999999,
 totalClientes,
-totalRevendedores: usuarios.length,
+totalRevendedores,
 vencendoHoje,
 clientesAtivos,
 clientesVencidos
@@ -126,6 +129,39 @@ vencimento: data.toISOString()
 fs.writeFileSync(path.join(__dirname, "clientes.json"), JSON.stringify(clientes, null, 2));
 
 res.json({ mensagem: "Cliente criado com sucesso" });
+});
+
+/* ================= REVENDEDORES ================= */
+
+// 🔥 CRIAR REVENDEDOR
+app.post("/criar-revendedor", (req, res) => {
+const { usuario, senha } = req.body;
+
+const existe = usuarios.find(u => u.usuario === usuario);
+
+if (existe) {
+return res.status(400).json({ mensagem: "Usuário já existe" });
+}
+
+usuarios.push({
+usuario,
+senha,
+tipo: "revendedor",
+creditos: 0
+});
+
+fs.writeFileSync(
+path.join(__dirname, "usuarios.json"),
+JSON.stringify(usuarios, null, 2)
+);
+
+res.json({ mensagem: "Revendedor criado com sucesso" });
+});
+
+// 🔥 LISTAR REVENDEDORES
+app.get("/revendedores", (req, res) => {
+const lista = usuarios.filter(u => u.tipo === "revendedor");
+res.json(lista);
 });
 
 /* ================= SERVIDOR ================= */

@@ -1,164 +1,98 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
 <meta charset="UTF-8">
-<title>Login - Gestor Master</title>
+<title>Login</title>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
-
 body{
+margin:0;
 height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-background:linear-gradient(135deg,#020617,#1d4ed8);
+background:linear-gradient(120deg,#020617,#1d4ed8);
+font-family:Arial;
 }
 
-/* CAIXA LOGIN */
-.login-container{
+.box{
 background:#0f172a;
-padding:40px;
+padding:30px;
 border-radius:12px;
-width:350px;
-box-shadow:0 0 25px rgba(0,0,0,0.6);
-text-align:center;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
 color:white;
+width:300px;
 }
 
-/* TITULO */
-.login-container h2{
-margin-bottom:25px;
-font-size:24px;
-}
-
-/* INPUT */
-.input-group{
-margin-bottom:15px;
-text-align:left;
-}
-
-.input-group label{
-font-size:14px;
-color:#94a3b8;
-}
-
-.input-group input{
+input{
 width:100%;
 padding:10px;
-margin-top:5px;
-border:none;
-border-radius:6px;
+margin:10px 0;
 background:#1e293b;
-color:white;
-}
-
-/* BOTÃO */
-.login-btn{
-width:100%;
-padding:12px;
-margin-top:15px;
 border:none;
-border-radius:6px;
-background:#2563eb;
 color:white;
-font-weight:bold;
+border-radius:6px;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#2563eb;
+border:none;
+color:white;
+border-radius:6px;
 cursor:pointer;
-transition:0.3s;
 }
 
-.login-btn:hover{
-background:#1d4ed8;
-}
-
-/* ERRO */
 .erro{
-color:#ef4444;
-margin-top:10px;
-display:none;
+color:red;
+text-align:center;
 }
-
 </style>
 
 </head>
 
 <body>
 
-<div class="login-container">
+<div class="box">
 
 <h2>Gestor Master</h2>
 
-<div class="input-group">
-<label>Usuário</label>
-<input id="usuario" placeholder="Digite seu usuário">
-</div>
+<input id="usuario" placeholder="Usuário">
+<input id="senha" type="password" placeholder="Senha">
 
-<div class="input-group">
-<label>Senha</label>
-<input id="senha" type="password" placeholder="Digite sua senha">
-</div>
+<button onclick="login()">Entrar</button>
 
-<button class="login-btn" onclick="login()">Entrar</button>
-
-<div id="erro" class="erro">Usuário ou senha inválidos</div>
+<div id="erro" class="erro"></div>
 
 </div>
 
 <script>
 
-/* EVITA VOLTAR LOGADO */
-window.onload = () => {
-localStorage.removeItem("usuario");
-localStorage.removeItem("tipo");
-};
-
-/* LOGIN */
 async function login(){
 
-const usuario = document.getElementById("usuario").value.trim();
-const senha = document.getElementById("senha").value.trim();
-const erro = document.getElementById("erro");
-
-/* VALIDAÇÃO */
-if(!usuario || !senha){
-erro.innerText = "Preencha todos os campos";
-erro.style.display = "block";
-return;
-}
-
-try{
+const usuario = document.getElementById("usuario").value;
+const senha = document.getElementById("senha").value;
 
 const res = await fetch("/login",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({ usuario, senha })
+body:JSON.stringify({usuario,senha})
 });
 
-if(!res.ok){
-erro.innerText = "Usuário ou senha inválidos";
-erro.style.display = "block";
-return;
-}
+if(res.status === 200){
 
 const data = await res.json();
 
-/* SALVA SESSÃO */
+/* 🔥 ESSA LINHA QUE FALTAVA */
 localStorage.setItem("usuario", data.usuario);
-localStorage.setItem("tipo", data.tipo);
 
-/* REDIRECIONA */
-window.location.href = "dashboard.html";
+window.location = "dashboard.html";
 
-}catch(e){
-erro.innerText = "Erro de conexão com servidor";
-erro.style.display = "block";
+}else{
+
+document.getElementById("erro").innerText = "Usuário ou senha inválidos";
+
 }
 
 }

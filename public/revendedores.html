@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Revendedores</title>
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="style.css">
 
 <style>
 
@@ -109,6 +109,11 @@ background:#ef4444;
 color:white;
 }
 
+.btn-copiar{
+background:#6366f1;
+color:white;
+}
+
 </style>
 
 </head>
@@ -152,6 +157,7 @@ color:white;
 <th>Usuário</th>
 <th>Senha</th>
 <th>Créditos</th>
+<th>Clientes</th> <!-- 🔥 NOVO -->
 <th>Status</th>
 <th>Ações</th>
 </tr>
@@ -189,6 +195,7 @@ html += `
 <td>${u.usuario}</td>
 <td>${u.senha}</td>
 <td>${u.creditos}</td>
+<td>${u.totalClientes || 0}</td> <!-- 🔥 NOVO -->
 <td>${u.bloqueado ? "Bloqueado" : "Ativo"}</td>
 
 <td>
@@ -200,6 +207,8 @@ html += `
 <button class="btn-bloquear" onclick="bloquear('${u.usuario}')">Bloquear</button>
 
 <button class="btn-excluir" onclick="excluir('${u.usuario}')">Excluir</button>
+
+<button class="btn-copiar" onclick="copiar('${u.usuario} - ${u.senha}')">Copiar</button> <!-- 🔥 NOVO -->
 
 </td>
 
@@ -297,6 +306,12 @@ body:JSON.stringify({usuario})
 
 carregarRevendedores();
 
+}
+
+/* 📋 COPIAR */
+function copiar(texto){
+navigator.clipboard.writeText(texto);
+alert("Copiado!");
 }
 
 carregarRevendedores();
