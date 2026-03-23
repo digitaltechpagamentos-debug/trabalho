@@ -180,11 +180,10 @@ alert("Faça login novamente");
 window.location = "login.html";
 }
 
-
 async function carregarRevendedores(){
 
-// 🔥 CORREÇÃO AQUI
-const res = await fetch("/revendedores");
+// ✅ CORREÇÃO AQUI
+const res = await fetch("/revendedores/" + usuarioLogado);
 
 const dados = await res.json();
 
@@ -229,7 +228,6 @@ async function criarRevendedor(){
 const usuario = document.getElementById("usuario").value;
 const senha = document.getElementById("senha").value;
 
-// 🔥 CORREÇÃO AQUI
 await fetch("/criar-revendedor",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
@@ -312,7 +310,6 @@ carregarRevendedores();
 
 }
 
-/* 📋 COPIAR */
 function copiar(texto){
 navigator.clipboard.writeText(texto);
 alert("Copiado!");
