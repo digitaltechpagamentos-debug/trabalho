@@ -75,26 +75,37 @@ const supabase = window.supabase.createClient(
 "https://gcqahmegpidkgedokbaa.supabase.co",
 "sb_publishable_Hdwuix4_G8H1l1ywDiSa0g_27Ut_b4R"
 );
-
 </script>
+
 <script>
-    async function  login(){
+async function login(){
 
-        const usuario = document.getElementById("usuario").value;
-        const senha = document.getElementById("senha").value;
-        const  { data, error } =await supabase
-        .from("usuarios")
-        .select ("*")
-        .eq("usuario", usuario)
-        .eq("senha", senha)
-        .single();
-        
-        if (error || !data) {
-            document.getElementById("erro").innerText ="Usuário ou senha inválidos";
-            return;
-        }
-        localStorage.setItem("usuario", data.usuario);
+const usuario = document.getElementById("usuario").value;
+const senha = document.getElementById("senha").value;
 
-        window.location = "dashboard.html";
-    }
-    </script>
+/* 🔥 DEBUG PRA TE AJUDAR */
+console.log("Digitado:", usuario, senha);
+
+const { data, error } = await supabase
+.from("usuarios")
+.select("*") // 🔥 CORRIGIDO (sem espaço)
+.eq("usuario", usuario)
+.eq("senha", senha)
+.single();
+
+/* 🔥 DEBUG PRA VER O QUE VEM DO BANCO */
+console.log("Resposta Supabase:", data, error);
+
+if (error || !data){
+document.getElementById("erro").innerText ="Usuário ou senha inválidos";
+return;
+}
+
+localStorage.setItem("usuario", data.usuario);
+
+window.location = "dashboard.html";
+}
+</script>
+
+</body>
+</html>
