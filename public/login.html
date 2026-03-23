@@ -66,51 +66,42 @@ text-align:center;
 
 </div>
 
-<!-- 🔥 1. IMPORTA SUPABASE PRIMEIRO -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<!-- 🔥 2. CRIA CONEXÃO -->
-<script>
-const supabase = window.supabase.createClient(
-"https://gcqahmegpidkgedokbaa.supabase.co",
-"sb_publishable_Hdwuix4_G8H1l1ywDiSa0g_27Ut_b4R"
-);
-</script>
-
 <script>
 async function login(){
 
 const usuario = document.getElementById("usuario").value.trim();
 const senha = document.getElementById("senha").value.trim();
 
-const { data, error } = await supabase
-.from("usuarios")
-.select("*")
-.eq("usuario", usuario);
+try{
 
-console.log("DATA:", data, "ERROR:", error);
+const res = await fetch("/login", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ usuario, senha })
+});
 
-if (!data || data.length === 0){
+if(res.status === 200){
 
-document.getElementById("erro").innerText ="Usuário não encontrado";
+const data = await res.json();
 
-return;
-
-}
-
-const user = data[0];
-
-if (user.senha !== senha){
-
-document.getElementById("erro").innerText ="Senha incorreta";
-
-return;
-
-}
-
-localStorage.setItem("usuario", user.usuario);
+localStorage.setItem("usuario", data.usuario);
 
 window.location = "dashboard.html";
 
+}else{
+
+document.getElementById("erro").innerText = "Usuário ou senha inválidos";
+
+}
+
+}catch(e){
+
+document.getElementById("erro").innerText = "Erro ao conectar com servidor";
+
+}
+
 }
 </script>
+
+</body>
+</html>
