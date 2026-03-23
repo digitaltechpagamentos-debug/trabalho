@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/digitaltechpagamentos-debug/trabalho#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "@supabase/supabase-js": "^2.99.3",
+    "express": "^5.2.1",
+    "mongodb": "^7.1.0"
   }
 }

@@ -7,6 +7,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const { createClient } = require('@supabase/supabase-js');
+
+const supabase = createClient(
+'https://gcqahmegpidkgedokbaa.supabase.co',
+'sb_publishable_Hdwuix4_G8H1l1ywDiSa0g_27Ut_b4R'
+);
+
 // 🔥 SERVIR ARQUIVOS
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -40,16 +47,22 @@ res.sendFile(path.join(__dirname, "public", "login.html"));
 
 /* ================= LOGIN ================= */
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
 const { usuario, senha } = req.body;
 
-if (usuario === "admin" && senha === "123456") {
+// admin continua igual
+if (usuario === "admin" && senha === "Gabriel") {
 return res.json({ usuario: "admin", tipo: "admin" });
 }
 
-const user = usuarios.find(u => u.usuario === usuario && u.senha === senha);
+const { data: user, error } = await supabase
+.from("usuarios")
+.select("*")
+.eq("usuario", usuario)
+.eq("senha", senha)
+.single();
 
-if (!user) {
+if (error || !user) {
 return res.status(401).json({ mensagem: "Login inválido" });
 }
 
@@ -59,7 +72,6 @@ return res.status(403).json({ mensagem: "Usuário bloqueado" });
 
 res.json({ usuario: user.usuario, tipo: user.tipo });
 });
-
 /* ================= DASHBOARD ================= */
 
 app.get("/dashboard-info", (req, res) => {
@@ -88,16 +100,24 @@ clientesVencidos
 
 /* ================= CLIENTES ================= */
 
-app.get("/clientes/:usuario", (req, res) => {
+app.get("/clientes/:usuario", async (req, res) => {
 const usuario = req.params.usuario;
 
-if (usuario === "admin") {
-return res.json(clientes);
+let query = supabase.from("clientes").select("*");
+
+if (usuario !== "admin") {
+query = query.eq("dono", usuario);
 }
 
-res.json(clientes.filter(c => c.dono === usuario));
-});
+const { data, error } = await query;
 
+if (error) {
+console.log(error);
+return res.status(500).json({ erro: error.message });
+}
+
+res.json(data);
+});
 /* ================= CRIAR CLIENTE ================= */
 app.post("/excluir-cliente", (req, res) => {
 const { id } = req.body;
@@ -111,33 +131,25 @@ JSON.stringify(clientes, null, 2)
 
 res.json({ mensagem: "Cliente excluído com sucesso" });
 });
-app.post("/criar-cliente", (req, res) => {
+app.post("/criar-cliente", async (req, res) => {
 const { email, senha, servidor, dono } = req.body;
-
-if (dono !== "admin") {
-const user = usuarios.find(u => u.usuario === dono);
-
-if (!user || user.creditos <= 0) {
-return res.status(400).json({ mensagem: "Sem créditos disponíveis" });
-}
-
-user.creditos -= 1;
-fs.writeFileSync(path.join(__dirname, "usuarios.json"), JSON.stringify(usuarios, null, 2));
-}
 
 const data = new Date();
 data.setDate(data.getDate() + 30);
 
-clientes.unshift({
-id: Date.now(),
+const { error } = await supabase.from("clientes").insert([
+{
 email,
 senha,
 servidor,
 dono,
 vencimento: data.toISOString()
-});
+}
+]);
 
-fs.writeFileSync(path.join(__dirname, "clientes.json"), JSON.stringify(clientes, null, 2));
+if (error) {
+return res.json({ erro: error.message });
+}
 
 res.json({ mensagem: "Cliente criado com sucesso" });
 });
@@ -146,29 +158,38 @@ res.json({ mensagem: "Cliente criado com sucesso" });
 
 
 // 🔥 CRIAR REVENDEDOR
-app.post("/criar-revendedor", (req, res) => {
+app.post("/criar-revendedor", async (req, res) => {
 const { usuario, senha } = req.body;
 
-const existe = usuarios.find(u => u.usuario === usuario);
+// verifica se já existe
+const { data: existe } = await supabase
+.from("usuarios")
+.select("*")
+.eq("usuario", usuario)
+.single();
 
 if (existe) {
 return res.status(400).json({ mensagem: "Usuário já existe" });
 }
 
-usuarios.push({
+const { error } = await supabase.from("usuarios").insert([
+{
 usuario,
 senha,
 tipo: "revendedor",
-creditos: 0
-});
+creditos: 0,
+bloqueado: false
+}
+]);
 
-fs.writeFileSync(
-path.join(__dirname, "usuarios.json"),
-JSON.stringify(usuarios, null, 2)
-);
+if (error) {
+console.log(error);
+return res.status(500).json({ erro: error.message });
+}
 
 res.json({ mensagem: "Revendedor criado com sucesso" });
 });
+
 app.post("/excluir-usuario", (req, res) => {
 const { usuario } = req.body;
 
@@ -185,15 +206,35 @@ res.json({ mensagem: "Usuário excluído" });
 });
 
 // 🔥 LISTAR REVENDEDORES
-app.get("/revendedores", (req, res) => {
-const lista = usuarios.filter(u => u.tipo === "revendedor");
-res.json(lista);
+app.get("/revendedores", async (req, res) => {
+const { data, error } = await supabase
+.from("usuarios")
+.select("*")
+.eq("tipo", "revendedor");
+
+if (error) {
+console.log(error);
+return res.status(500).json({ erro: error.message });
+}
+
+res.json(data);
 });
-
 /* ================= SERVIDOR ================= */
+app.get("/teste", async (req, res) => {
+const { data, error } = await supabase
+.from("usuarios")
+.select("*");
 
+if (error) {
+return res.json({ erro: error.message });
+}
+
+res.json(data);
+});
 const PORT = process.env.PORT || 3000;
-
+app.get("/ping", (req, res) => {
+res.send("ok");
+});
 app.listen(PORT, "0.0.0.0", () => {
 console.log("Servidor rodando na porta " + PORT);
 });

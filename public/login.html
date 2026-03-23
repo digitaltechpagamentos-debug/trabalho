@@ -67,37 +67,11 @@ text-align:center;
 
 </div>
 
+<!-- 🔥 1. IMPORTA SUPABASE PRIMEIRO -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<!-- 🔥 2. CRIA CONEXÃO -->
 <script>
-
-async function login(){
-
-const usuario = document.getElementById("usuario").value;
-const senha = document.getElementById("senha").value;
-
-const res = await fetch("/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({usuario,senha})
-});
-
-if(res.status === 200){
-
-const data = await res.json();
-
-/* 🔥 ESSA LINHA QUE FALTAVA */
-localStorage.setItem("usuario", data.usuario);
-
-window.location = "dashboard.html";
-
-}else{
-
-document.getElementById("erro").innerText = "Usuário ou senha inválidos";
-
-}
-
-}
-
-</script>
-
-</body>
-</html>
+const supabase = window.supabase.createClient(
+"https://gcqahmegpidkgedokbaa.supabase.co",
+"sb_publishable_Hdwuix4_G8H1l

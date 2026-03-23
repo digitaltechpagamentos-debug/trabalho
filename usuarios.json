@@ -1,10 +1,15 @@
 [
-{
-"id":1,
-"usuario":"admin",
-"senha":"123456",
-"tipo":"admin",
-
-"creditos":100
-}
+  {
+    "id": 1,
+    "usuario": "admin",
+    "senha": "123456",
+    "tipo": "admin",
+    "creditos": 100
+  },
+  {
+    "usuario": "testeuser",
+    "senha": "testeuser",
+    "tipo": "revendedor",
+    "creditos": 0
+  }
 ]
