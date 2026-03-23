@@ -51,9 +51,7 @@ app.post("/login", async (req, res) => {
 const { usuario, senha } = req.body;
 
 // admin continua igual
-if (usuario === "admin" && senha === "Gabriel") {
-return res.json({ usuario: "admin", tipo: "admin" });
-}
+
 
 const { data: user, error } = await supabase
 .from("usuarios")

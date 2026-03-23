@@ -62,7 +62,6 @@ text-align:center;
 <input id="senha" type="password" placeholder="Senha">
 
 <button onclick="login()">Entrar</button>
-
 <div id="erro" class="erro"></div>
 
 </div>
@@ -74,4 +73,28 @@ text-align:center;
 <script>
 const supabase = window.supabase.createClient(
 "https://gcqahmegpidkgedokbaa.supabase.co",
-"sb_publishable_Hdwuix4_G8H1l
+"sb_publishable_Hdwuix4_G8H1l1ywDiSa0g_27Ut_b4R"
+);
+
+</script>
+<script>
+    async function  login(){
+
+        const usuario = document.getElementById("usuario").value;
+        const senha = document.getElementById("senha").value;
+        const  { data, error } =await supabase
+        .from("usuarios")
+        .select ("*")
+        .eq("usuario", usuario)
+        .eq("senha", senha)
+        .single();
+        
+        if (error || !data) {
+            document.getElementById("erro").innerText ="Usuário ou senha inválidos";
+            return;
+        }
+        localStorage.setItem("usuario", data.usuario);
+
+        window.location = "dashboard.html";
+    }
+    </script>
