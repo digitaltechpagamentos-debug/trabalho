@@ -50,11 +50,8 @@ res.sendFile(path.join(__dirname, "public", "login.html"));
 app.post("/login", async (req, res) => {
 const { usuario, senha } = req.body;
 
-// admin continua igual
-
-
 const { data: user, error } = await supabase
-.from("usuarios")
+.from("usuarios") // 🔥 corrigido aqui
 .select("*")
 .eq("usuario", usuario)
 .eq("senha", senha)
@@ -70,6 +67,7 @@ return res.status(403).json({ mensagem: "Usuário bloqueado" });
 
 res.json({ usuario: user.usuario, tipo: user.tipo });
 });
+
 /* ================= DASHBOARD ================= */
 
 app.get("/dashboard-info", (req, res) => {
@@ -116,7 +114,9 @@ return res.status(500).json({ erro: error.message });
 
 res.json(data);
 });
+
 /* ================= CRIAR CLIENTE ================= */
+
 app.post("/excluir-cliente", (req, res) => {
 const { id } = req.body;
 
@@ -129,6 +129,7 @@ JSON.stringify(clientes, null, 2)
 
 res.json({ mensagem: "Cliente excluído com sucesso" });
 });
+
 app.post("/criar-cliente", async (req, res) => {
 const { email, senha, servidor, dono } = req.body;
 
@@ -154,12 +155,10 @@ res.json({ mensagem: "Cliente criado com sucesso" });
 
 /* ================= REVENDEDORES ================= */
 
-
 // 🔥 CRIAR REVENDEDOR
 app.post("/criar-revendedor", async (req, res) => {
 const { usuario, senha } = req.body;
 
-// verifica se já existe
 const { data: existe } = await supabase
 .from("usuarios")
 .select("*")
@@ -191,10 +190,8 @@ res.json({ mensagem: "Revendedor criado com sucesso" });
 app.post("/excluir-usuario", (req, res) => {
 const { usuario } = req.body;
 
-// remove o usuário
 usuarios = usuarios.filter(u => u.usuario !== usuario);
 
-// salva no arquivo
 fs.writeFileSync(
 path.join(__dirname, "usuarios.json"),
 JSON.stringify(usuarios, null, 2)
@@ -217,7 +214,29 @@ return res.status(500).json({ erro: error.message });
 
 res.json(data);
 });
-/* ================= SERVIDOR ================= */
+
+/* ================= CREDITOS (NOVO) ================= */
+
+app.get("/creditos/:usuario", async (req, res) => {
+
+const usuario = req.params.usuario;
+
+const { data, error } = await supabase
+.from("usuarios")
+.select("creditos")
+.eq("usuario", usuario)
+.single();
+
+if (error || !data) {
+return res.json({ creditos: 0 });
+}
+
+res.json({ creditos: data.creditos || 0 });
+
+});
+
+/* ================= TESTE ================= */
+
 app.get("/teste", async (req, res) => {
 const { data, error } = await supabase
 .from("usuarios")
@@ -229,10 +248,13 @@ return res.json({ erro: error.message });
 
 res.json(data);
 });
+
 const PORT = process.env.PORT || 3000;
+
 app.get("/ping", (req, res) => {
 res.send("ok");
 });
+
 app.listen(PORT, "0.0.0.0", () => {
 console.log("Servidor rodando na porta " + PORT);
 });
