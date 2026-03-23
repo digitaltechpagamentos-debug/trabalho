@@ -80,32 +80,37 @@ const supabase = window.supabase.createClient(
 <script>
 async function login(){
 
-const usuario = document.getElementById("usuario").value;
-const senha = document.getElementById("senha").value;
-
-/* 🔥 DEBUG PRA TE AJUDAR */
-console.log("Digitado:", usuario, senha);
+const usuario = document.getElementById("usuario").value.trim();
+const senha = document.getElementById("senha").value.trim();
 
 const { data, error } = await supabase
 .from("usuarios")
-.select("*") // 🔥 CORRIGIDO (sem espaço)
-.eq("usuario", usuario.trim())
-.eq("senha", senha.tri())
-.single();
+.select("*")
+.eq("usuario", usuario);
 
-/* 🔥 DEBUG PRA VER O QUE VEM DO BANCO */
-console.log("Resposta Supabase:", data, error);
+console.log("DATA:", data, "ERROR:", error);
 
-if (error || !data){
-document.getElementById("erro").innerText ="Usuário ou senha inválidos";
+if (!data || data.length === 0){
+
+document.getElementById("erro").innerText ="Usuário não encontrado";
+
 return;
+
 }
 
-localStorage.setItem("usuario", data.usuario);
+const user = data[0];
+
+if (user.senha !== senha){
+
+document.getElementById("erro").innerText ="Senha incorreta";
+
+return;
+
+}
+
+localStorage.setItem("usuario", user.usuario);
 
 window.location = "dashboard.html";
+
 }
 </script>
-
-</body>
-</html>
