@@ -125,7 +125,7 @@ color:white;
 </div>
 
 <div class="perfil-topo">
-<span>👤 admin</span>
+<span>👤 <span id="usuarioTopo"></span></span>
 <span id="creditosTopo">💰 ...</span>
 </div>
 
@@ -180,10 +180,16 @@ alert("Faça login novamente");
 window.location = "login.html";
 }
 
+// mostra no topo quem está logado
+document.getElementById("usuarioTopo").innerText = usuarioLogado;
+
 async function carregarRevendedores(){
 
-// ✅ CORREÇÃO AQUI
-const res = await fetch("/revendedores/" + usuarioLogado);
+try{
+
+const res = await fetch("/revendedores/" + usuarioLogado, {
+cache: "no-store"
+});
 
 const dados = await res.json();
 
@@ -220,6 +226,11 @@ html += `
 });
 
 document.getElementById("listaRevendedores").innerHTML = html;
+
+}catch(e){
+console.error("Erro ao carregar:", e);
+alert("Erro ao carregar revendedores");
+}
 
 }
 
