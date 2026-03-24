@@ -135,7 +135,7 @@ res.json({ mensagem: "Usuário excluído com sucesso" });
 
 // 🔥 CRIAR REVENDEDOR
 app.post("/criar-revendedor", async (req, res) => {
-const { usuario, senha } = req.body;
+const { usuario, senha, pai } = req.body;
 
 const { data: existe } = await supabase
 .from("usuarios")
@@ -153,7 +153,8 @@ usuario,
 senha,
 tipo: "revendedor",
 creditos: 0,
-bloqueado: false
+bloqueado: false,
+pai
 }
 ]);
 
@@ -201,8 +202,8 @@ return res.json(data);
 const { data, error } = await supabase
 .from("usuarios")
 .select("*")
-.eq("usuario", usuario)
-.single();
+.eq("pai", usuario);
+
 
 if(error){
 return res.status(500).json({ erro: error.message });
