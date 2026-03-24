@@ -201,20 +201,38 @@ res.json({ mensagem: "Usuário excluído" });
 });
 
 // 🔥 LISTAR REVENDEDORES
-app.get("/revendedores", async (req, res) => {
+app.get("/revendedores/:usuario", async (req, res) => {
+const usuario = req.params.usuario;
+
+// 🔥 ADMIN vê todos
+if(usuario === "admin"){
+
 const { data, error } = await supabase
 .from("usuarios")
 .select("*")
 .eq("tipo", "revendedor");
 
-if (error) {
-console.log(error);
+if(error){
 return res.status(500).json({ erro: error.message });
 }
 
-res.json(data);
-});
+return res.json(data);
+}
 
+// 🔥 REVENDEDOR vê só ele
+const { data, error } = await supabase
+.from("usuarios")
+.select("*")
+.eq("usuario", usuario)
+.single();
+
+if(error){
+return res.status(500).json({ erro: error.message });
+}
+
+return res.json([data]); // ⚠️ array pra não quebrar o front
+
+});
 /* ================= CREDITOS (NOVO) ================= */
 
 app.get("/creditos/:usuario", async (req, res) => {
