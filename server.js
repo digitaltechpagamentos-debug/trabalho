@@ -117,42 +117,20 @@ res.json(data);
 
 /* ================= CRIAR CLIENTE ================= */
 
-app.post("/excluir-cliente", (req, res) => {
-const { id } = req.body;
+app.post("/excluir-usuario", async (req, res) => {
+const { usuario } = req.body;
 
-clientes = clientes.filter(c => c.id != id);
-
-fs.writeFileSync(
-path.join(__dirname, "clientes.json"),
-JSON.stringify(clientes, null, 2)
-);
-
-res.json({ mensagem: "Cliente excluído com sucesso" });
-});
-
-app.post("/criar-cliente", async (req, res) => {
-const { email, senha, servidor, dono } = req.body;
-
-const data = new Date();
-data.setDate(data.getDate() + 30);
-
-const { error } = await supabase.from("clientes").insert([
-{
-email,
-senha,
-servidor,
-dono,
-vencimento: data.toISOString()
-}
-]);
+const { error } = await supabase
+.from("usuarios")
+.delete()
+.eq("usuario", usuario);
 
 if (error) {
-return res.json({ erro: error.message });
+return res.status(500).json({ erro: error.message });
 }
 
-res.json({ mensagem: "Cliente criado com sucesso" });
+res.json({ mensagem: "Usuário excluído com sucesso" });
 });
-
 /* ================= REVENDEDORES ================= */
 
 // 🔥 CRIAR REVENDEDOR
