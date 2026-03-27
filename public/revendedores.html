@@ -180,7 +180,6 @@ alert("Faça login novamente");
 window.location = "login.html";
 }
 
-// mostra no topo quem está logado
 document.getElementById("usuarioTopo").innerText = usuarioLogado;
 
 async function carregarRevendedores(){
@@ -191,7 +190,26 @@ const res = await fetch("/revendedores/" + usuarioLogado, {
 cache: "no-store"
 });
 
+// 🔥 se der erro no servidor
+if(!res.ok){
+document.getElementById("listaRevendedores").innerHTML = "";
+return;
+}
+
 const dados = await res.json();
+
+// 🔥 se não for array → evita erro
+if(!Array.isArray(dados)){
+document.getElementById("listaRevendedores").innerHTML = "";
+return;
+}
+
+// 🔥 se vazio → mostra mensagem bonita
+if(dados.length === 0){
+document.getElementById("listaRevendedores").innerHTML =
+"<tr><td colspan='6'>Nenhum revendedor encontrado</td></tr>";
+return;
+}
 
 let html = "";
 
@@ -229,7 +247,8 @@ document.getElementById("listaRevendedores").innerHTML = html;
 
 }catch(e){
 console.error("Erro ao carregar:", e);
-alert("Erro ao carregar revendedores");
+document.getElementById("listaRevendedores").innerHTML =
+"<tr><td colspan='6'>Erro ao carregar dados</td></tr>";
 }
 
 }
