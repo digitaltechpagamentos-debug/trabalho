@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, "public")));
 let clientes = [];
 let usuarios = [];
 
-/* ================= CARREGAR (PROTEGIDO) ================= */
+/* ================= CARREGAR ================= */
 
 try {
 if (fs.existsSync(path.join(__dirname, "clientes.json"))) {
@@ -41,6 +41,7 @@ usuarios = [];
 }
 
 /* ================= ROTA PRINCIPAL ================= */
+
 app.get("/", (req, res) => {
 res.sendFile(path.join(__dirname, "public", "login.html"));
 });
@@ -51,7 +52,7 @@ app.post("/login", async (req, res) => {
 const { usuario, senha } = req.body;
 
 const { data: user, error } = await supabase
-.from("usuarios") // 🔥 corrigido aqui
+.from("usuarios")
 .select("*")
 .eq("usuario", usuario)
 .eq("senha", senha)
@@ -115,22 +116,6 @@ return res.status(500).json({ erro: error.message });
 res.json(data);
 });
 
-/* ================= CRIAR CLIENTE ================= */
-
-app.post("/excluir-usuario", async (req, res) => {
-const { usuario } = req.body;
-
-const { error } = await supabase
-.from("usuarios")
-.delete()
-.eq("usuario", usuario);
-
-if (error) {
-return res.status(500).json({ erro: error.message });
-}
-
-res.json({ mensagem: "Usuário excluído com sucesso" });
-});
 /* ================= REVENDEDORES ================= */
 
 // 🔥 CRIAR REVENDEDOR
@@ -166,20 +151,7 @@ return res.status(500).json({ erro: error.message });
 res.json({ mensagem: "Revendedor criado com sucesso" });
 });
 
-app.post("/excluir-usuario", (req, res) => {
-const { usuario } = req.body;
-
-usuarios = usuarios.filter(u => u.usuario !== usuario);
-
-fs.writeFileSync(
-path.join(__dirname, "usuarios.json"),
-JSON.stringify(usuarios, null, 2)
-);
-
-res.json({ mensagem: "Usuário excluído" });
-});
-
-// 🔥 LISTAR REVENDEDORES
+// 🔥 LISTAR REVENDEDORES (CORRIGIDO)
 app.get("/revendedores/:usuario", async (req, res) => {
 const usuario = req.params.usuario;
 
@@ -198,21 +170,37 @@ return res.status(500).json({ erro: error.message });
 return res.json(data);
 }
 
-// 🔥 REVENDEDOR vê só ele
+// 🔥 REVENDEDOR vê só os dele
 const { data, error } = await supabase
 .from("usuarios")
 .select("*")
 .eq("pai", usuario);
 
-
 if(error){
 return res.status(500).json({ erro: error.message });
 }
 
-return res.json([data]); // ⚠️ array pra não quebrar o front
-
+return res.json(data); // ✅ corrigido aqui
 });
-/* ================= CREDITOS (NOVO) ================= */
+
+/* ================= EXCLUIR USUÁRIO ================= */
+
+app.post("/excluir-usuario", async (req, res) => {
+const { usuario } = req.body;
+
+const { error } = await supabase
+.from("usuarios")
+.delete()
+.eq("usuario", usuario);
+
+if (error) {
+return res.status(500).json({ erro: error.message });
+}
+
+res.json({ mensagem: "Usuário excluído com sucesso" });
+});
+
+/* ================= CREDITOS ================= */
 
 app.get("/creditos/:usuario", async (req, res) => {
 
@@ -245,6 +233,8 @@ return res.json({ erro: error.message });
 
 res.json(data);
 });
+
+/* ================= SERVIDOR ================= */
 
 const PORT = process.env.PORT || 3000;
 
