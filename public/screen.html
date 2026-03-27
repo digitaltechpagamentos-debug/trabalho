@@ -139,8 +139,11 @@ const usuario = localStorage.getItem("usuario");
 /* ALERTAS */
 async function verificarVencimentos(){
 
+try{
 const res = await fetch("/clientes/" + usuario);
 const clientes = await res.json();
+
+if(!Array.isArray(clientes)) return;
 
 let avisos = "";
 const hoje = new Date();
@@ -161,13 +164,36 @@ avisos += `<div style="color:orange">⏰ ${c.email} vence em ${diff} dias</div>`
 
 document.getElementById("alertas").innerHTML = avisos;
 
+}catch(e){
+console.log("Erro alertas", e);
+}
+
 }
 
 /* LISTAR CLIENTES */
 async function carregar(){
 
+try{
+
 const res = await fetch("/clientes/" + usuario);
+
+if(!res.ok){
+document.getElementById("lista").innerHTML = "";
+return;
+}
+
 const dados = await res.json();
+
+if(!Array.isArray(dados)){
+document.getElementById("lista").innerHTML = "";
+return;
+}
+
+if(dados.length === 0){
+document.getElementById("lista").innerHTML =
+"<tr><td colspan='6'>Nenhum cliente encontrado</td></tr>";
+return;
+}
 
 let html = "";
 
@@ -188,11 +214,8 @@ ${new Date(c.vencimento) < new Date()
 
 <td>
 <button onclick="abrirModal(${c.id}, '${c.email}', '${c.senha}', '${c.servidor}')">Editar</button>
-
 <button onclick="renovar(${c.id})">Renovar</button>
-
 <button onclick="excluir(${c.id})">Excluir</button>
-
 <button onclick="copiar('${c.email} - ${c.senha}')">Copiar</button>
 </td>
 
@@ -202,6 +225,12 @@ ${new Date(c.vencimento) < new Date()
 });
 
 document.getElementById("lista").innerHTML = html;
+
+}catch(e){
+console.log("Erro ao carregar clientes:", e);
+document.getElementById("lista").innerHTML =
+"<tr><td colspan='6'>Erro ao carregar clientes</td></tr>";
+}
 
 }
 
@@ -228,14 +257,14 @@ carregar();
 
 }
 
-/* EXCLUIR */
+/* RESTANTE IGUAL */
 async function excluir(id){
 
 if(!confirm("Deseja excluir este cliente?")) return;
 
 await fetch("/excluir-cliente", {
 method: "POST",
-headers: {"contente-Type": "application/json"},
+headers: {"Content-Type": "application/json"},
 body: JSON.stringify({ id})
 });
 
@@ -243,7 +272,6 @@ carregar();
 
 }
 
-/* RENOVAR */
 async function renovar(id){
 
 const meses = prompt("Quantos meses?");
@@ -260,7 +288,6 @@ carregar();
 
 }
 
-/* BUSCAR */
 function buscarCliente(){
 
 const termo = document.getElementById("buscar").value.toLowerCase();
@@ -273,13 +300,11 @@ linha.style.display = nome.includes(termo) ? "" : "none";
 
 }
 
-/* COPIAR */
 function copiar(texto){
 navigator.clipboard.writeText(texto);
 alert("Copiado!");
 }
 
-/* MODAL */
 function abrirModal(id, nome, senha, servidor){
 
 clienteAtual = id;
@@ -296,7 +321,6 @@ function fecharModal(){
 document.getElementById("modalEditar").style.display = "none";
 }
 
-/* SALVAR */
 async function salvarEdicao(){
 
 const nome = document.getElementById("editNome").value;
@@ -319,7 +343,6 @@ carregar();
 
 }
 
-/* CREDITOS */
 async function carregarCreditos(){
 
 const res = await fetch("/creditos/" + usuario);
@@ -329,16 +352,16 @@ document.getElementById("creditos").innerText = data.creditos;
 
 }
 
-/* INICIAR */
 carregar();
 verificarVencimentos();
 carregarCreditos();
+
 function logout() {
 localStorage.removeItem("usuario");
 localStorage.removeItem("tipo");
-
-window.location.href = "/"; // volta pro login
+window.location.href = "/";
 }
+
 </script>
 
 </body>
