@@ -69,6 +69,41 @@ return res.status(403).json({ mensagem: "Usuário bloqueado" });
 res.json({ usuario: user.usuario, tipo: user.tipo });
 });
 
+/* ================= CRIAR CLIENTE ================= */
+
+app.post("/criar-cliente", async (req, res) => {
+
+const { email, senha, servidor, dono } = req.body;
+
+if(!email || !senha){
+return res.status(400).json({ erro: "Dados incompletos" });
+}
+
+const data = new Date();
+data.setDate(data.getDate() + 30);
+
+const { data: resultado, error } = await supabase
+.from("clientes")
+.insert([
+{
+email,
+senha,
+servidor,
+dono,
+vencimento: data.toISOString()
+}
+])
+.select();
+
+if (error) {
+console.log("ERRO AO SALVAR:", error);
+return res.status(500).json({ erro: error.message });
+}
+
+res.json({ sucesso: true, cliente: resultado });
+
+});
+
 /* ================= DASHBOARD ================= */
 
 app.get("/dashboard-info", (req, res) => {
