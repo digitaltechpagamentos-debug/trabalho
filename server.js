@@ -104,12 +104,31 @@ res.json({ sucesso: true });
 });
 
 /* ================= DASHBOARD ================= */
+app.get("/dashboard-info/:usuario", async (req, res) => {
 
-app.get("/dashboard-info", (req, res) => {
+const usuario = req.params.usuario;
 const hoje = new Date();
 
+const { data: user } = await supabase
+.from("usuarios")
+.select("creditos")
+.eq("usuario", usuario)
+.maybeSingle();
+
+const creditos = user?.creditos || 0;
+
+let query = supabase.from("clientes").select("*");
+
+if (usuario !== "admin") {
+query = query.eq("dono", usuario);
+}
+
+const { data: clientes = [] } = await query;
+
 const totalClientes = clientes.length;
+
 const clientesAtivos = clientes.filter(c => new Date(c.vencimento) > hoje).length;
+
 const clientesVencidos = clientes.filter(c => new Date(c.vencimento) < hoje).length;
 
 const vencendoHoje = clientes.filter(c => {
@@ -117,18 +136,16 @@ const data = new Date(c.vencimento);
 return data.toDateString() === hoje.toDateString();
 }).length;
 
-const totalRevendedores = usuarios.filter(u => u.tipo === "revendedor").length;
-
 res.json({
-creditos: 999999,
+creditos,
 totalClientes,
-totalRevendedores,
+totalRevendedores: 0,
 vencendoHoje,
 clientesAtivos,
 clientesVencidos
 });
-});
 
+});
 /* ================= CLIENTES ================= */
 
 app.get("/clientes/:usuario", async (req, res) => {
