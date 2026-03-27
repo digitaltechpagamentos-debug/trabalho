@@ -51,14 +51,14 @@ res.sendFile(path.join(__dirname, "public", "login.html"));
 app.post("/login", async (req, res) => {
 const { usuario, senha } = req.body;
 
-const { data: user, error } = await supabase
+const { data: user } = await supabase
 .from("usuarios")
 .select("*")
 .eq("usuario", usuario)
 .eq("senha", senha)
-.single();
+.maybeSingle();
 
-if (error || !user) {
+if (!user) {
 return res.status(401).json({ mensagem: "Login inválido" });
 }
 
@@ -82,7 +82,7 @@ return res.status(400).json({ erro: "Dados incompletos" });
 const data = new Date();
 data.setDate(data.getDate() + 30);
 
-const { data: resultado, error } = await supabase
+const { error } = await supabase
 .from("clientes")
 .insert([
 {
@@ -92,15 +92,14 @@ servidor,
 dono,
 vencimento: data.toISOString()
 }
-])
-.select();
+]);
 
 if (error) {
 console.log("ERRO AO SALVAR:", error);
 return res.status(500).json({ erro: error.message });
 }
 
-res.json({ sucesso: true, cliente: resultado });
+res.json({ sucesso: true });
 
 });
 
@@ -157,40 +156,50 @@ res.json(data);
 app.post("/criar-revendedor", async (req, res) => {
 const { usuario, senha, pai } = req.body;
 
+try {
+
 const { data: existe } = await supabase
 .from("usuarios")
 .select("*")
 .eq("usuario", usuario)
-.single();
+.maybeSingle();
 
 if (existe) {
 return res.status(400).json({ mensagem: "Usuário já existe" });
 }
 
-const { error } = await supabase.from("usuarios").insert([
+const { error } = await supabase
+.from("usuarios")
+.insert([
 {
 usuario,
 senha,
 tipo: "revendedor",
-creditos: 0,
-bloqueado: false,
+creditos:0,
+bloqueado:false,
 pai
 }
 ]);
 
 if (error) {
-console.log(error);
+console.log("ERRO INSERT:", error);
 return res.status(500).json({ erro: error.message });
 }
 
 res.json({ mensagem: "Revendedor criado com sucesso" });
+
+} catch (err) {
+console.log("ERRO GERAL:", err);
+res.status(500).json({erro: "erro interno"});
+}
+
 });
 
-// 🔥 LISTAR REVENDEDORES (CORRIGIDO)
+// 🔥 LISTAR REVENDEDORES
 app.get("/revendedores/:usuario", async (req, res) => {
 const usuario = req.params.usuario;
 
-// 🔥 ADMIN vê todos
+// ADMIN vê todos
 if(usuario === "admin"){
 
 const { data, error } = await supabase
@@ -205,7 +214,7 @@ return res.status(500).json({ erro: error.message });
 return res.json(data);
 }
 
-// 🔥 REVENDEDOR vê só os dele
+// REVENDEDOR vê só os dele
 const { data, error } = await supabase
 .from("usuarios")
 .select("*")
@@ -215,7 +224,8 @@ if(error){
 return res.status(500).json({ erro: error.message });
 }
 
-return res.json(data); // ✅ corrigido aqui
+return res.json(data);
+
 });
 
 /* ================= EXCLUIR USUÁRIO ================= */
@@ -241,13 +251,13 @@ app.get("/creditos/:usuario", async (req, res) => {
 
 const usuario = req.params.usuario;
 
-const { data, error } = await supabase
+const { data } = await supabase
 .from("usuarios")
 .select("creditos")
 .eq("usuario", usuario)
-.single();
+.maybeSingle();
 
-if (error || !data) {
+if (!data) {
 return res.json({ creditos: 0 });
 }
 
