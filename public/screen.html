@@ -213,10 +213,17 @@ ${new Date(c.vencimento) < new Date()
 </td>
 
 <td>
+
 <button onclick="abrirModal(${c.id}, '${c.email}', '${c.senha}', '${c.servidor}')">Editar</button>
+
 <button onclick="renovar(${c.id})">Renovar</button>
+
 <button onclick="excluir(${c.id})">Excluir</button>
+
+<button onclick="enviarZap('${c.email}')">WhatsApp</button>
+
 <button onclick="copiar('${c.email} - ${c.senha}')">Copiar</button>
+
 </td>
 
 </tr>
@@ -343,6 +350,17 @@ carregar();
 
 }
 
+async function enviarZap(numero){
+
+await fetch("/enviar-zap", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ numero })
+});
+
+alert("Mensagem enviada no WhatsApp!");
+
+}
 async function carregarCreditos(){
 
 const res = await fetch("/creditos/" + usuario);
