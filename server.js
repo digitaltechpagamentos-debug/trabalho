@@ -40,6 +40,29 @@ console.log("Erro usuarios.json:", erro);
 usuarios = [];
 }
 
+/* ================= WHATSAPP ================= */
+
+// 🔥 COLOCA SEUS DADOS AQUI
+const ZAPI_INSTANCE = "3F0E8EDBA5C371193DD6661707F5575A";
+const ZAPI_TOKEN = "6E30F1552FF8977DA9E976CA";
+
+async function enviarWhatsapp(numero, mensagem){
+
+try{
+await fetch(`https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}/send-text`, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+phone: numero,
+message: mensagem
+})
+});
+}catch(e){
+console.log("Erro WhatsApp:", e);
+}
+
+}
+
 /* ================= ROTA PRINCIPAL ================= */
 
 app.get("/", (req, res) => {
@@ -73,7 +96,7 @@ res.json({ usuario: user.usuario, tipo: user.tipo });
 
 app.post("/criar-cliente", async (req, res) => {
 
-const { email, senha, servidor, dono } = req.body;
+const { email, senha, servidor, dono, telefone } = req.body;
 
 if(!email || !senha){
 return res.status(400).json({ erro: "Dados incompletos" });
@@ -90,6 +113,7 @@ email,
 senha,
 servidor,
 dono,
+telefone, // 🔥 ADICIONADO
 vencimento: data.toISOString()
 }
 ]);
@@ -146,6 +170,7 @@ clientesVencidos
 });
 
 });
+
 /* ================= CLIENTES ================= */
 
 app.get("/clientes/:usuario", async (req, res) => {
@@ -193,7 +218,6 @@ res.json({ mensagem: "Cliente excluído com sucesso" });
 
 /* ================= REVENDEDORES ================= */
 
-// 🔥 CRIAR REVENDEDOR
 app.post("/criar-revendedor", async (req, res) => {
 const { usuario, senha, pai } = req.body;
 
@@ -236,11 +260,11 @@ res.status(500).json({erro: "erro interno"});
 
 });
 
-// 🔥 LISTAR REVENDEDORES
+/* ================= LISTAR REVENDEDORES ================= */
+
 app.get("/revendedores/:usuario", async (req, res) => {
 const usuario = req.params.usuario;
 
-// ADMIN vê todos
 if(usuario === "admin"){
 
 const { data, error } = await supabase
@@ -255,7 +279,6 @@ return res.status(500).json({ erro: error.message });
 return res.json(data);
 }
 
-// REVENDEDOR vê só os dele
 const { data, error } = await supabase
 .from("usuarios")
 .select("*")
@@ -306,18 +329,45 @@ res.json({ creditos: data.creditos || 0 });
 
 });
 
-/* ================= TESTE ================= */
+/* ================= TESTE WHATS ================= */
 
-app.get("/teste", async (req, res) => {
-const { data, error } = await supabase
-.from("usuarios")
+app.get("/teste-zap", async (req, res) => {
+
+await enviarWhatsapp("5588SEUNUMERO", "🔥 Teste funcionando!");
+
+res.send("ok");
+
+});
+
+/* ================= AUTOMÁTICO ================= */
+
+app.get("/verificar-vencimentos", async (req, res) => {
+
+const hoje = new Date();
+
+const { data: clientes } = await supabase
+.from("clientes")
 .select("*");
 
-if (error) {
-return res.json({ erro: error.message });
+for (let c of clientes){
+
+if(!c.telefone) continue;
+
+const data = new Date(c.vencimento);
+
+if (data.toDateString() === hoje.toDateString()){
+
+await enviarWhatsapp(
+c.telefone,
+"⚠️ Seu plano vence hoje. Renove para não perder o acesso."
+);
+
 }
 
-res.json(data);
+}
+
+res.send("ok");
+
 });
 
 /* ================= SERVIDOR ================= */
