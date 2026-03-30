@@ -333,7 +333,7 @@ res.json({ creditos: data.creditos || 0 });
 
 app.get("/teste-zap", async (req, res) => {
 
-await enviarWhatsapp("5588SEUNUMERO", "🔥 Teste funcionando!");
+await enviarWhatsapp("5585992789423", "🔥 Teste funcionando!");
 
 res.send("ok");
 
