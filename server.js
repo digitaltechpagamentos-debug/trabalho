@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const fetch = require("node-fetch"); // 🔥 CORREÇÃO AQUI
 
 const app = express();
 
@@ -42,7 +43,6 @@ usuarios = [];
 
 /* ================= WHATSAPP ================= */
 
-// 🔥 COLOCA SEUS DADOS AQUI
 const ZAPI_INSTANCE = "3F0E8EDBA5C371193DD6661707F5575A";
 const ZAPI_TOKEN = "6E30F1552FF8977DA9E976CA";
 
@@ -113,7 +113,7 @@ email,
 senha,
 servidor,
 dono,
-telefone, // 🔥 ADICIONADO
+telefone,
 vencimento: data.toISOString()
 }
 ]);
@@ -339,6 +339,8 @@ res.send("ok");
 
 });
 
+/* ================= BOTÃO WHATS ================= */
+
 app.post("/enviar-zap", async (req, res) => {
 
 const { numero } = req.body;
@@ -351,7 +353,6 @@ numero,
 res.json({ ok: true });
 
 });
-
 
 /* ================= AUTOMÁTICO ================= */
 
