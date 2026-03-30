@@ -339,6 +339,20 @@ res.send("ok");
 
 });
 
+app.post("/enviar-zap", async (req, res) => {
+
+const { numero } = req.body;
+
+await enviarWhatsapp(
+numero,
+"⚠️ Olá! Seu plano está vencendo. Entre em contato para renovar."
+);
+
+res.json({ ok: true });
+
+});
+
+
 /* ================= AUTOMÁTICO ================= */
 
 app.get("/verificar-vencimentos", async (req, res) => {
