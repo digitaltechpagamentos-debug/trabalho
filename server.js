@@ -1,7 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const fetch = require("node-fetch"); // 🔥 CORREÇÃO AQUI
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)); // 🔥 CORREÇÃO AQUI
 
 const app = express();
 
@@ -386,13 +386,18 @@ res.send("ok");
 });
 
 /* ================= SERVIDOR ================= */
-
 const PORT = process.env.PORT || 3000;
 
-app.get("/ping", (req, res) => {
-res.send("ok");
+// 🔥 ROTAS PRIMEIRO
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
+app.get("/ping", (req, res) => {
+  res.send("ok");
+});
+
+// 🔥 DEPOIS O LISTEN
 app.listen(PORT, "0.0.0.0", () => {
-console.log("Servidor rodando na porta " + PORT);
+  console.log("Servidor rodando na porta " + PORT);
 });
