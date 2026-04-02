@@ -1,6 +1,9 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+app.get("/teste", (req, res) => {
+  res.send("FUNCIONOU 123");
+});
 
 // ✅ fetch corrigido (Railway)
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
